@@ -1,6 +1,6 @@
 #include<iostream>
 #include<string>
-#include "HbnMatrix.h"
+#include "HbnTools.h"
 
 
 int main() {

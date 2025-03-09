@@ -18,6 +18,9 @@
     <ClInclude Include="src\HbnMatrix.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\HbnTools.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\test.cpp">
