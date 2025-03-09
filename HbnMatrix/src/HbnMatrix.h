@@ -31,10 +31,7 @@ public:
 	Matrix(int i, int j)
 		:row(i), column(j)
 	{
-		data = new T[i * j];
-		for (int k = 0; k < i * j; k++) {
-			data[k] = 0;
-		}
+		data = new T[i * j](0);
 	}
 	~Matrix() {
 		delete[] data;
