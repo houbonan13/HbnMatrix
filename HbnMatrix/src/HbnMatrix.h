@@ -1,6 +1,7 @@
 #pragma once
 #include<iostream>
 #include<initializer_list>
+#include<stdexcept>
 
 namespace HbnTools {
 
@@ -21,6 +22,12 @@ private:
 		}
 		const T& operator[](int incol) const {
 			return rowindex[incol];
+		}
+		T& operator*() {
+			return *rowindex;
+		}
+		const T& operator*() const {
+			return *rowindex;
 		}
 	};
 private:
@@ -76,6 +83,9 @@ public:
 	const int GetCol() const noexcept {
 		return column;
 	}
+	const int GetValue(size_t r, size_t c) const {
+		return data[index(r, c)];
+	}
 
 	const void Print() const noexcept {
 		if (data == NULL) {
@@ -89,6 +99,20 @@ public:
 			std::cout << std::endl;
 		}
 		return;
+	}
+
+	Matrix operator+(const Matrix& m) {
+		if (column != m.GetCol() || row != m.GetRow()) {
+			throw std::runtime_error("The dimension of matrices don't match!");
+			std::abort();
+		}
+		Matrix sum(row, column);
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < column; j++) {
+				sum[i][j] = this->GetValue(i,j) + m.GetValue(i,j);
+			}
+		}
+		return sum;
 	}
 };
 
