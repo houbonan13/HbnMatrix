@@ -11,6 +11,7 @@ private:
 	size_t row, column;
 	T* data;
 private:
+	//InnerCol类目的是能够使用双[]，模仿多重指针的情况下返回某索引下的值
 	class InnerCol {
 	private:
 		T* rowindex;
@@ -45,6 +46,8 @@ public:
 	{
 		data = new T[i * j]();
 	}
+
+	//使用两个大括号直接赋值的时候调用该构造函数
 	Matrix(std::initializer_list<std::initializer_list<T>> list) {
 		row = list.size();
 		if (row == 0) {
@@ -65,7 +68,15 @@ public:
 		}
 	}
 
+	//拷贝构造函数，可以赋值的时候调用
+	Matrix(const Matrix& m)
+		:row(m.row), column(m.column)
+	{
+		data = new T[row * column];
+		memcpy(data, m.data, row * column * sizeof(T));
+	}
 
+	//析构函数释放内存
 	~Matrix() {
 		delete[] data;
 	}
@@ -110,6 +121,20 @@ public:
 		for (int i = 0; i < row; i++) {
 			for (int j = 0; j < column; j++) {
 				sum[i][j] = this->GetValue(i,j) + m.GetValue(i,j);
+			}
+		}
+		return sum;
+	}
+
+	Matrix operator-(const Matrix& m) {
+		if (column != m.GetCol() || row != m.GetRow()) {
+			throw std::runtime_error("The dimension of matrices don't match!");
+			std::abort();
+		}
+		Matrix sum(row, column);
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < column; j++) {
+				sum[i][j] = this->GetValue(i, j) - m.GetValue(i, j);
 			}
 		}
 		return sum;

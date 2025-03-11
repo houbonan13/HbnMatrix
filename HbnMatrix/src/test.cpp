@@ -12,5 +12,8 @@ int main() {
 	HbnTools::Matrix<int>p = { {3,2,6},{1,4,8} };
 	HbnTools::Matrix<int>q = n + p;
 	q.Print();
+	HbnTools::Matrix<int>p_cp = p;
+	p_cp.Print();
+	p.Print();
 	std::cin.get();
 }
