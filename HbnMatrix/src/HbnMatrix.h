@@ -5,6 +5,18 @@
 
 namespace HbnTools {
 
+//计算前先检验一下矩阵维度是否符合的异常类
+class DimMismatchException : public std::exception {
+private:
+	std::string errormessage;
+public:
+	DimMismatchException(const std::string& message)
+		:errormessage(message) {}
+	const char* what() const noexcept override {
+		return errormessage.c_str();
+	}
+	};
+
 template <typename T>
 class Matrix {
 private:
@@ -112,10 +124,17 @@ public:
 		return;
 	}
 
+	const void CheckSameDim(const Matrix& m) const {
+		if (column != m.GetCol() || row != m.GetRow())
+			throw DimMismatchException("The dimension of matrices don't match!");
+	}
+
 	Matrix operator+(const Matrix& m) {
-		if (column != m.GetCol() || row != m.GetRow()) {
-			throw std::runtime_error("The dimension of matrices don't match!");
-			std::abort();
+		try {
+			CheckSameDim(m);
+		}
+		catch (const DimMismatchException& e) {
+			std::cerr << "Mismatch Exception caught: " << e.what() << std::endl;
 		}
 		Matrix sum(row, column);
 		for (int i = 0; i < row; i++) {
@@ -127,9 +146,11 @@ public:
 	}
 
 	Matrix operator-(const Matrix& m) {
-		if (column != m.GetCol() || row != m.GetRow()) {
-			throw std::runtime_error("The dimension of matrices don't match!");
-			std::abort();
+		try {
+			CheckSameDim(m);
+		}
+		catch (const DimMismatchException& e) {
+			std::cerr << "Mismatch Exception caught: " << e.what() << std::endl;
 		}
 		Matrix sum(row, column);
 		for (int i = 0; i < row; i++) {
