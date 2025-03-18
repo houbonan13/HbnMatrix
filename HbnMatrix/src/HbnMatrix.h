@@ -2,26 +2,28 @@
 #include<iostream>
 #include<initializer_list>
 #include<stdexcept>
+#include<memory>
+#include"HbnException.h"
+
 
 namespace HbnTools {
 
 //计算前先检验一下矩阵维度是否符合的异常类
-class DimMismatchException : public std::exception {
-private:
-	std::string errormessage;
-public:
-	DimMismatchException(const std::string& message)
-		:errormessage(message) {}
-	const char* what() const noexcept override {
-		return errormessage.c_str();
-	}
-	};
+//class DimMismatchException : public std::exception {
+//private:
+//	std::string errormessage;
+//public:
+//	DimMismatchException(const std::string& message)
+//		:errormessage(message) {}
+//	const char* what() const noexcept override {
+//		return errormessage.c_str();
+//	}
+//	};
+
 
 template <typename T>
 class Matrix {
-private:
-	size_t row, column;
-	T* data;
+
 private:
 	//InnerCol类目的是能够使用双[]，模仿多重指针的情况下返回某索引下的值
 	class InnerCol {
@@ -43,6 +45,28 @@ private:
 			return *rowindex;
 		}
 	};
+
+	class MatrixPreExam {
+	private:
+		const Matrix<T>* m_pointer;
+	public:
+		MatrixPreExam()
+			:m_pointer(nullptr) {}
+
+		MatrixPreExam(const Matrix<T>* ptr)
+			:m_pointer(ptr) {}
+
+		void AddDimException(const Matrix<T>& m) {
+			if (m_pointer->GetRow() != m.GetRow() || m_pointer->GetCol() != m.GetCol())
+				throw MatrixException("The dimension of matrices don't match!");
+		}
+	};
+
+private:
+	size_t row, column;
+	std::unique_ptr<T[]> data;
+	MatrixPreExam m_preexam;
+
 private:
 	int index(int i, int j) const {
 		return i * column + j;
@@ -52,11 +76,14 @@ public:
 		:row(0), column(0)
 	{
 		data = nullptr;
+		m_preexam = nullptr;
 	}
 	Matrix(int i, int j)
 		:row(i), column(j)
 	{
-		data = new T[i * j]();
+		//data = new T[i * j]();
+		data = std::make_unique<T[]>(row * column);
+		m_preexam = this;
 	}
 
 	//使用两个大括号直接赋值的时候调用该构造函数
@@ -68,7 +95,8 @@ public:
 			return;
 		}
 		column = list.begin()->size();
-		data = new T[row * column];
+		//data = new T[row * column];
+		data = std::make_unique<T[]>(row * column);
 		int temp_row = 0;
 		for (auto it = list.begin(); it != list.end(); it++) {
 			int temp_col = 0;
@@ -78,26 +106,34 @@ public:
 			}
 			temp_row++;
 		}
+		m_preexam = this;
 	}
 
 	//拷贝构造函数，可以赋值的时候调用
 	Matrix(const Matrix& m)
 		:row(m.row), column(m.column)
 	{
-		data = new T[row * column];
-		memcpy(data, m.data, row * column * sizeof(T));
+		if (m.data) {
+			size_t size_tmp = row * column;
+			data = std::make_unique<T[]>(size_tmp);
+			for (size_t i = 0; i < size_tmp; i++) {
+				data[i] = m.data[i];
+			}
+		}
+		/*data = new T[row * column];
+		memcpy(data, m.data, row * column * sizeof(T));*/
+		m_preexam = this;
 	}
 
 	//析构函数释放内存
 	~Matrix() {
-		delete[] data;
 	}
 
 	InnerCol operator[](int inrow) {
-		return InnerCol(data + inrow * column);
+		return InnerCol(data.get() + inrow * column);
 	}
 	const InnerCol operator[](int inrow) const {
-		return InnerCol(data + inrow * column);
+		return InnerCol(data.get() + inrow * column);
 	}
 
 	const int GetRow() const noexcept {
@@ -124,17 +160,33 @@ public:
 		return;
 	}
 
-	const void CheckSameDim(const Matrix& m) const {
+	/*const void CheckSameDim(const Matrix& m) const {
 		if (column != m.GetCol() || row != m.GetRow())
 			throw DimMismatchException("The dimension of matrices don't match!");
+	}*/
+
+	//重载赋值运算符号，从而实现深拷贝
+	Matrix& operator=(const Matrix& m) {
+		if (this != &m) {
+			row = m.row;
+			column = m.column;
+			size_t size_tmp = row * column;
+			data = std::make_unique<T[]>(size_tmp);
+			for (int i = 0; i < size_tmp; i++)
+				data[i] = m.data[i];
+			m_preexam = this;
+		}
+		return *this;
 	}
+
 
 	Matrix operator+(const Matrix& m) {
 		try {
-			CheckSameDim(m);
+			m_preexam.AddDimException(m);
 		}
-		catch (const DimMismatchException& e) {
+		catch (const MatrixException& e) {
 			std::cerr << "Mismatch Exception caught: " << e.what() << std::endl;
+			return Matrix();
 		}
 		Matrix sum(row, column);
 		for (int i = 0; i < row; i++) {
@@ -147,10 +199,11 @@ public:
 
 	Matrix operator-(const Matrix& m) {
 		try {
-			CheckSameDim(m);
+			m_preexam.AddDimException(m);
 		}
-		catch (const DimMismatchException& e) {
+		catch (const MatrixException& e) {
 			std::cerr << "Mismatch Exception caught: " << e.what() << std::endl;
+			return Matrix();
 		}
 		Matrix sum(row, column);
 		for (int i = 0; i < row; i++) {

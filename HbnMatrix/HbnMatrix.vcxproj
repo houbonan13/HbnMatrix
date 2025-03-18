@@ -132,7 +132,7 @@
     <ClInclude Include="src\HbnMatrix.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\HbnException.cpp" />
+    <ClCompile Include="src\HbnException.h" />
     <ClCompile Include="src\test.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
