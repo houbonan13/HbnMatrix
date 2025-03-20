@@ -1,4 +1,7 @@
 #pragma once
+#ifndef HBNMATRIX_H
+#define HBNMATRIX_H
+
 #include<iostream>
 #include<initializer_list>
 #include<stdexcept>
@@ -60,10 +63,23 @@ private:
 			if (m_pointer->GetRow() != m.GetRow() || m_pointer->GetCol() != m.GetCol())
 				throw MatrixException("The dimension of matrices don't match!");
 		}
+
+		const void rSliceDimException(size_t r_begin, size_t r_end) const {
+			if (r_end <= r_begin || r_begin<0 || r_end>m_pointer->GetRow()) {
+				throw MatrixException("The required dimension is not correct!");
+			}
+		}
+
+		const void cSliceDimException(size_t c_begin, size_t c_end) const {
+			if (c_end <= c_begin || c_begin<0 || c_end > m_pointer->GetCol()) {
+				throw MatrixException("The required dimension is not correct!");
+			}
+		}
 	};
 
 private:
 	size_t row, column;
+	size_t m_size;
 	std::unique_ptr<T[]> data;
 	MatrixPreExam m_preexam;
 
@@ -73,13 +89,13 @@ private:
 	}
 public:
 	Matrix()
-		:row(0), column(0)
+		:row(0), column(0), m_size(0)
 	{
 		data = nullptr;
 		m_preexam = nullptr;
 	}
 	Matrix(int i, int j)
-		:row(i), column(j)
+		:row(i), column(j), m_size(i*j)
 	{
 		//data = new T[i * j]();
 		data = std::make_unique<T[]>(row * column);
@@ -106,6 +122,7 @@ public:
 			}
 			temp_row++;
 		}
+		m_size = row * column;
 		m_preexam = this;
 	}
 
@@ -122,6 +139,7 @@ public:
 		}
 		/*data = new T[row * column];
 		memcpy(data, m.data, row * column * sizeof(T));*/
+		m_size = m.m_size;
 		m_preexam = this;
 	}
 
@@ -160,6 +178,21 @@ public:
 		return;
 	}
 
+	const Matrix rSlice(size_t row_begin, size_t row_end) const {
+		try {
+			m_preexam.rSliceDimException(row_begin, row_end);
+		}
+		catch (const MatrixException& e) {
+			std::cerr << "Mismatch Exception caught: " << e.what() << std::endl;
+			return Matrix();
+		}
+		Matrix res(row_end - row_begin, column);
+		for (int i = 0; i < res.m_size; i++) {
+			res.data[i] = data[row_begin * column + i];
+		}
+		return res;
+	}
+
 	/*const void CheckSameDim(const Matrix& m) const {
 		if (column != m.GetCol() || row != m.GetRow())
 			throw DimMismatchException("The dimension of matrices don't match!");
@@ -170,6 +203,7 @@ public:
 		if (this != &m) {
 			row = m.row;
 			column = m.column;
+			m_size = m.m_size;
 			size_t size_tmp = row * column;
 			data = std::make_unique<T[]>(size_tmp);
 			for (int i = 0; i < size_tmp; i++)
@@ -217,3 +251,4 @@ public:
 
 }
 
+#endif
