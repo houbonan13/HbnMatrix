@@ -118,6 +118,8 @@ public:
 		if (row == 0) {
 			column = 0;
 			data = nullptr;
+			m_size = 0;
+			m_preexam = this;
 			return;
 		}
 		column = list.begin()->size();
@@ -222,12 +224,21 @@ public:
 
 	const Matrix Slice(size_t r_begin, size_t r_end, size_t c_begin, size_t c_end) const {
 		try {
-			m_preexam.SliceDimException(c_begin, c_end);
+			m_preexam.SliceDimException(r_begin, r_end, c_begin, c_end);
 		}
 		catch (const MatrixException& e) {
 			std::cerr << "Mismatch Exception caught: " << e.what() << std::endl;
 			return Matrix();
 		}
+
+
+		Matrix res(r_end - r_begin, c_end - c_begin);
+		for (int i = 0; i < r_end - r_begin; i++) {
+			for (int j = 0; j < c_end - c_begin; j++) {
+				res.data[i * (c_end - c_begin) + j] = this->GetValue(i + r_begin, j + c_begin);
+			}
+		}
+		return res;
 	}
 
 	/*const void CheckSameDim(const Matrix& m) const {
