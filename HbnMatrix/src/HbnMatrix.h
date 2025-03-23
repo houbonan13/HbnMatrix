@@ -7,6 +7,7 @@
 #include<stdexcept>
 #include<memory>
 #include"HbnException.h"
+#include"HbnMatrixMultiply.h"
 
 
 namespace HbnTools {
@@ -59,7 +60,7 @@ private:
 		MatrixPreExam(const Matrix<T>* ptr)
 			:m_pointer(ptr) {}
 
-		const void AddDimException const (const Matrix<T>& m) {
+		const void AddDimException (const Matrix<T>& m) const {
 			if (m_pointer->GetRow() != m.GetRow() || m_pointer->GetCol() != m.GetCol())
 				throw MatrixException("The dimension of matrices don't match!");
 		}
@@ -71,6 +72,15 @@ private:
 		}
 
 		const void cSliceDimException(size_t c_begin, size_t c_end) const {
+			if (c_end <= c_begin || c_begin<0 || c_end > m_pointer->GetCol()) {
+				throw MatrixException("The required dimension is not correct!");
+			}
+		}
+
+		const void SliceDimException(size_t r_begin, size_t r_end, size_t c_begin, size_t c_end) const {
+			if (r_end <= r_begin || r_begin<0 || r_end>m_pointer->GetRow()) {
+				throw MatrixException("The required dimension is not correct!");
+			}
 			if (c_end <= c_begin || c_begin<0 || c_end > m_pointer->GetCol()) {
 				throw MatrixException("The required dimension is not correct!");
 			}
@@ -191,6 +201,33 @@ public:
 			res.data[i] = data[row_begin * column + i];
 		}
 		return res;
+	}
+
+	const Matrix cSlice(size_t col_begin, size_t col_end) const {
+		try {
+			m_preexam.cSliceDimException(col_begin, col_end);
+		}
+		catch (const MatrixException& e) {
+			std::cerr << "Mismatch Exception caught: " << e.what() << std::endl;
+			return Matrix();
+		}
+		Matrix res(row, col_end - col_begin);
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col_end - col_begin; j++) {
+				res.data[i * (col_end - col_begin) + j] = data[i * column + col_begin + j];
+			}
+		}
+		return res;
+	}
+
+	const Matrix Slice(size_t r_begin, size_t r_end, size_t c_begin, size_t c_end) const {
+		try {
+			m_preexam.SliceDimException(c_begin, c_end);
+		}
+		catch (const MatrixException& e) {
+			std::cerr << "Mismatch Exception caught: " << e.what() << std::endl;
+			return Matrix();
+		}
 	}
 
 	/*const void CheckSameDim(const Matrix& m) const {

@@ -11,5 +11,7 @@ int main() {
 	n.Print();
 	HbnTools::Matrix<int>q = n.rSlice(0, 1);
 	q.Print();
+	HbnTools::Matrix<int>r = n.cSlice(0, 1);
+	r.Print();
 	std::cin.get();
 }
