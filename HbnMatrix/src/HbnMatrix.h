@@ -59,7 +59,7 @@ private:
 		MatrixPreExam(const Matrix<T>* ptr)
 			:m_pointer(ptr) {}
 
-		void AddDimException(const Matrix<T>& m) {
+		const void AddDimException const (const Matrix<T>& m) {
 			if (m_pointer->GetRow() != m.GetRow() || m_pointer->GetCol() != m.GetCol())
 				throw MatrixException("The dimension of matrices don't match!");
 		}
