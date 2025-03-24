@@ -65,6 +65,11 @@ private:
 				throw MatrixException("The dimension of matrices don't match!");
 		}
 
+		const void MultiplyDimException(const Matrix<T>& m) const {
+			if (m_pointer->GetCol() != m.GetRow())
+				throw MatrixException("The dimension of matrices don't match!");
+		}
+
 		const void rSliceDimException(size_t r_begin, size_t r_end) const {
 			if (r_end <= r_begin || r_begin<0 || r_end>m_pointer->GetRow()) {
 				throw MatrixException("The required dimension is not correct!");
@@ -153,6 +158,16 @@ public:
 		memcpy(data, m.data, row * column * sizeof(T));*/
 		m_size = m.m_size;
 		m_preexam = this;
+	}
+
+	//移动语义拷贝构造函数
+	Matrix(Matrix&& m)
+		:row(m.row), column(m.column), data(std::move(m.data)), m_size(m.m_size) {
+		m_preexam = this;
+		m.row = 0;
+		m.column = 0;
+		m.data = nullptr;
+		m.m_preexam = nullptr;
 	}
 
 	//析构函数释放内存
@@ -295,8 +310,24 @@ public:
 		}
 		return sum;
 	}
+
+	Matrix operator*(const Matrix& m) {
+		//实现最简单的循环乘法
+		Matrix<T> res(this->row, m.column);
+		for (int i = 0; i < res.GetRow(); i++) {
+			for (int j = 0; j < res.GetCol(); j++) {
+				res[i][j] = 0;
+				for (int k = 0; k < m.row; k++) {
+					res[i][j] += this->GetValue(i, k) * m[k][j];
+				}
+			}
+		}
+		return res;
+	}
 };
 
 }
+
+
 
 #endif

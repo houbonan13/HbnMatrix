@@ -127,7 +127,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\HbnMatrixMultiply.h" />
     <ClInclude Include="src\HbnTools.h" />
     <ClInclude Include="src\HbnMatrix.h" />
   </ItemGroup>
