@@ -187,7 +187,7 @@ public:
 	const int GetCol() const noexcept {
 		return column;
 	}
-	const int GetValue(size_t r, size_t c) const {
+	const T GetValue(size_t r, size_t c) const {
 		return data[index(r, c)];
 	}
 
