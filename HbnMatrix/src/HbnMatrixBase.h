@@ -103,14 +103,18 @@ namespace HbnTools {
 		virtual const T GetValue(size_t r, size_t c) const noexcept = 0;
 		virtual const void Print() const noexcept = 0;
 		
+		//对矩阵进行切片功能
 		virtual const MatrixBase<T> rSlice(size_t row_begin, size_t row_end) const = 0;
 		virtual const MatrixBase<T> cSlice(size_t col_begin, size_t col_end) const = 0;
 		virtual const MatrixBase<T> Slice(size_t r_begin, size_t r_end, size_t c_begin, size_t c_end) const = 0;
 		
-		MatrixBase& operator=(const MatrixBase& m) = 0;
-		MatrixBase& operator+(const MatrixBase& m) = 0;
-		MatrixBase& operator-(const MatrixBase& m) = 0;
-		MatrixBase& operator*(const MatrixBase& m) = 0;
+		//重载运算符
+		virtual InnerCol operator[](size_t row) = 0;
+		virtual const InnerCol operator[](size_t row) const = 0;
+		virtual MatrixBase& operator=(const MatrixBase& m) = 0;
+		virtual MatrixBase operator+(const MatrixBase& m) = 0;
+		virtual MatrixBase operator-(const MatrixBase& m) = 0;
+		virtual MatrixBase operator*(const MatrixBase& m) = 0;
 
 	};
 
