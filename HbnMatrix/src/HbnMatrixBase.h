@@ -94,6 +94,13 @@ namespace HbnTools {
 		virtual ~MatrixBase() = 0;
 
 	public:
+		//输出随机矩阵与单位矩阵等
+		virtual static MatrixBase<T> RandMatrix(size_t row, size_t col) = 0;
+		virtual static MatrixBase<T> RandMatrix(size_t row, size_t col, T min_val, T max_val) = 0;
+		virtual static MatrixBase<T> EyeMatrix(size_t row) = 0;
+
+	public:
+		//获取矩阵的基本信息，打印矩阵等
 		virtual const size_t GetRow() const noexcept {
 			return m_row;
 		}

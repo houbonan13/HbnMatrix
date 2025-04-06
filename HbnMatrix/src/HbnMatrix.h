@@ -7,7 +7,6 @@
 #include<stdexcept>
 #include<memory>
 #include"HbnException.h"
-#include"HbnMatrixMultiply.h"
 
 
 namespace HbnTools {
@@ -161,7 +160,7 @@ public:
 	}
 
 	//移动语义拷贝构造函数
-	Matrix(Matrix&& m)
+	Matrix(Matrix&& m) noexcept
 		:row(m.row), column(m.column), data(std::move(m.data)), m_size(m.m_size) {
 		m_preexam = this;
 		m.row = 0;
